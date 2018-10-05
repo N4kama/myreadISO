@@ -25,43 +25,45 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
     pwd[0] = '/';
     pwd[1] = '\0'; 
     int pwd_index = 1;
+
+    struct input_params param = { input, pwd , &pwd_index};
     
     last_file.iso_dir = file;
     if (term)
         printf(">");
-    while (fgets(input, 4095, stdin))
+    while (fgets(param.input, 4095, stdin))
     {
-        if (!strcmp(input, "quit\n"))
+        if (!strcmp(param.input, "quit\n"))
             break;
-        else if (!strcmp(input, "help\n"))
+        else if (!strcmp(param.input, "help\n"))
             help_func();
-        else if (!strcmp(input, "info\n"))
+        else if (!strcmp(param.input, "info\n"))
             info_func(pv);
-        else if (!strcmp(input, "ls\n"))
+        else if (!strcmp(param.input, "ls\n"))
             ls_func(map, file);
-        else if (!strncmp(input, "cat ", 4))
-          cat_func(map, file, input);
-        else if (!strncmp(input, "cd ", 3))
+        else if (!strncmp(param.input, "cat ", 4))
+          cat_func(map, file, param.input);
+        else if (!strncmp(param.input, "cd ", 3))
         {
             last_file.name = last_tmp.name;
             last_tmp = last_file;
             last_file.iso_dir = file;
-            file = cd_func(map, file, input, &last_tmp);
+            file = cd_func(map, file, param, &last_tmp);
             if (file != last_file.iso_dir)
             {
-                void *tmp = file;
-                char *tmpp = tmp;
-                char *filename = tmpp + sizeof(struct iso_dir);
-                for (int i = 0; i < file->idf_len; i++)
-                {
-                    pwd[256*pwd_index + i] = filename[i];
-                }
-                pwd[256*pwd_index + file->idf_len] = '/';
-                pwd[256*pwd_index + file->idf_len + 1] = '\0';
-                pwd_index++;
+	            void *tmp = file;
+		    char *tmpp = tmp;
+		    char *filename = tmpp + sizeof(struct iso_dir);
+		    for (int i = 0; i < file->idf_len; i++)
+		    {
+			pwd[256 * pwd_index + i] = filename[i];
+		    }
+		    pwd[256 * pwd_index + file->idf_len] = '/';
+		    pwd[256 * pwd_index + file->idf_len + 1] = '\0';
+		    pwd_index += 1;
             }
         }
-        else if (!strcmp(input, "pwd\n"))
+        else if (!strcmp(param.input, "pwd\n"))
         {
             for (int i = 0; i < pwd_index; i++)
             {
@@ -69,11 +71,11 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
             }
             printf("\n");
         }
-        else if (!strncmp(input, "get ", 4))
+        else if (!strncmp(param.input, "get ", 4))
         {
-            get_func(map, file, input);
+            get_func(map, file, param.input);
         }
-        else if (!strcmp(input, "\n"))
+        else if (!strcmp(param.input, "\n"))
         {
             if (term)
                 printf(">");
@@ -81,9 +83,9 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
         }
         else
         {
-            if (input[strlen(input) - 1] == '\n')
-                input[strlen(input) - 1] = '\0';
-            printf("my_read_iso: %s: unknown command\n", input);   
+            if (param.input[strlen(input) - 1] == '\n')
+                param.input[strlen(input) - 1] = '\0';
+            printf("my_read_iso: %s: unknown command\n", param.input);   
         }
         if (term)
             printf(">");

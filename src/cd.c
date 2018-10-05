@@ -1,5 +1,27 @@
 #include "functions.h"
 
+void *goto_file(char *map, struct iso_dir *root, int index)
+{
+    char *cur  = move_to_block(map, root->data_blk.le);
+    while (cur)
+    {
+	index--;
+        void *tmp = cur;
+        struct iso_dir *file = tmp;
+        if (!file->data_blk.le)
+        {
+            return NULL;
+        }
+        char dir = file->type & 2 ? 'd' : '-';
+        if (dir == 'd' && !index)
+        {
+	    return file;
+        }
+        cur += file->dir_size;
+    }
+    return root;
+}
+
 void *cd_func_alt(char *map, struct iso_dir *root, char *filename)
 {
     char *cur  = move_to_block(map, root->data_blk.le);
@@ -27,20 +49,37 @@ void *cd_func_alt(char *map, struct iso_dir *root, char *filename)
     return root;
 }
 
-void *cd_func(char *map, struct iso_dir *root, char *input,
+void *cd_func(char *map, struct iso_dir *root, struct input_params param,
     struct file *prev_file)
 {
     struct iso_dir *root_save = root;
-    char *tmp_filename = input + 3;
+    char *tmp_filename = param.input + 3;
     tmp_filename[strlen(tmp_filename) - 1] = '\0';
     char input_save[256];
     strcpy(input_save, tmp_filename);
     char *filename = NULL;
-    char *filename_save = NULL;
+    char filename_save[256];
     while ((filename = strtok(tmp_filename, "/")))
     {
         tmp_filename = NULL;
-        filename_save = filename;
+        strcpy(filename_save, filename);
+	if (!strcmp(filename, ".."))
+	{
+	    struct iso_dir *back = goto_file(map, root, 2);
+	    int index = *param.index;
+	    if (index <= 2)
+	    {
+		strcpy(filename_save, "/");
+	    }
+	    else
+	    {
+		strcpy(filename_save, &param.path[(*param.index - 2) * 256]);
+		filename_save[strlen(filename_save) - 1] = '\0';
+	    }
+	    root = back;
+	    *param.index -= 1;
+	    break;
+	}
         if (!strcmp(filename, "-"))
         {
             root = prev_file->iso_dir;
@@ -55,7 +94,7 @@ void *cd_func(char *map, struct iso_dir *root, char *input,
         }  
     }
     if (root == prev_file->iso_dir)
-        filename_save = prev_file->name;
+        strcpy(filename_save, prev_file->name);
     printf("Changing to '%s' directory\n", filename_save);
     return root;
 }

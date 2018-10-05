@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -Wall -Wextra -Werror -pedantic -std=c99
 
 RES = myreadiso
-SRC = src/my_bash.c src/core_features.c
+SRC = src/my_bash.c src/core_features.c src/tools.c src/get.c src/cd.c
 
 all :
 	$(CC) $(CFLAGS) $(SRC) -o $(RES)

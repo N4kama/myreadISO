@@ -22,3 +22,20 @@ void *move_to_block(char *map, int offset)
     void *tmp = map + ISO_BLOCK_SIZE * offset;
     return tmp;
 }
+
+void get_name(struct iso_dir *file, char *res)
+{
+    void *tmp = file;
+    char *cur = tmp;
+    char *name = cur + sizeof(struct iso_dir);
+    char dir = file->type & 2 ? 'd' : '-';
+    int name_len = file->idf_len;
+    if (dir == '-')
+    {
+	int len = 0;
+	for (; name[len] != ';'; len++);
+	name_len = len;
+    }
+    name[name_len] = '\0';
+    strcpy(res, name);
+}
