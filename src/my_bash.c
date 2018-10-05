@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include "core_features.h"
+#include "functions.h"
 
 void help_func(void)
 {
@@ -16,80 +13,80 @@ void help_func(void)
     printf("quit: program exit\n");
 }
 
-void info_func(struct iso_prim_voldesc *pv)
-{
-    printf("System Identifier: ");
-    fflush(stdout);
-    write(0, pv->syidf, ISO_SYSIDF_LEN * sizeof(char));
-    printf("\n");
-    printf("Volume Identifier: ");
-    fflush(stdout);
-    write(0, pv->vol_idf, ISO_VOLIDF_LEN * sizeof(char));
-    printf("\n");
-    printf("Block count:  %u\n", pv->vol_blk_count.le);
-    printf("Block size: %u\n", pv->vol_blk_size.le);
-    printf("Creation date: ");
-    fflush(stdout);
-    write(0, pv->date_creat, ISO_LDATE_LEN * sizeof(char));
-    printf("\n");
-    printf("Application Identifier: ");
-    fflush(stdout);
-    write(0, pv->app_idf, ISO_APP_LEN * sizeof(char));
-    printf("\n");
-}
-
-void *move_to_block(char *map, int offset)
-{
-    void *tmp = map + ISO_BLOCK_SIZE * offset;
-    return tmp;
-}
-
-void ls_func(char *map, struct iso_prim_voldesc *pv)
-{
-    struct iso_dir *root = &pv->root_dir;
-    char *cur  = move_to_block(map, root->data_blk.le);
-    while (cur)
-    {
-	void *tmp = cur;
-	struct iso_dir *file = tmp;
-	if (!file->data_blk.le)
-	    return;
-	char *name = cur + sizeof(struct iso_dir);
-	char dir = file->type & 2 ? 'd' : '-';
-	char hidden = file->type & 1 ? 'h' : '-';
-	printf("%c%c %9u %04d/%02d/%02d %02d:%02d %s\n",
-	       dir, hidden, file->file_size.le, file->date[0], file->date[1],
-	       file->date[2], file->date[3], file->date[4], name);
-	cur += file->dir_size;
-    }
-}
-
 int getinput(char *map, struct iso_prim_voldesc *pv)
 {
     char input[4095];
     int term = isatty(0);
+    struct iso_dir *file = &pv->root_dir;
+    struct file last_file;
+    struct file last_tmp;
+
+    char pwd[256*9];
+    pwd[0] = '/';
+    pwd[1] = '\0'; 
+    int pwd_index = 1;
+    
+    last_file.iso_dir = file;
     if (term)
-	printf(">");
+        printf(">");
     while (fgets(input, 4095, stdin))
     {
-	if (!strcmp(input, "quit\n"))
-	    break;
-	else if (!strcmp(input, "help\n"))
-	    help_func();
-	else if (!strcmp(input, "info\n"))
-	    info_func(pv);
-	else if (!strcmp(input, "ls\n"))
-	    ls_func(map, pv);
-	else if (!strcmp(input, "\n"))
-	{
-	    if (term)
-		printf(">");
-	    continue;
-	}
-	else
-	    printf("my_read_iso: %s: unknown command", input);
-	if (term)
-	    printf(">");
+        if (!strcmp(input, "quit\n"))
+            break;
+        else if (!strcmp(input, "help\n"))
+            help_func();
+        else if (!strcmp(input, "info\n"))
+            info_func(pv);
+        else if (!strcmp(input, "ls\n"))
+            ls_func(map, file);
+        else if (!strncmp(input, "cat ", 4))
+          cat_func(map, file, input);
+        else if (!strncmp(input, "cd ", 3))
+        {
+            last_file.name = last_tmp.name;
+            last_tmp = last_file;
+            last_file.iso_dir = file;
+            file = cd_func(map, file, input, &last_tmp);
+            if (file != last_file.iso_dir)
+            {
+                void *tmp = file;
+                char *tmpp = tmp;
+                char *filename = tmpp + sizeof(struct iso_dir);
+                for (int i = 0; i < file->idf_len; i++)
+                {
+                    pwd[256*pwd_index + i] = filename[i];
+                }
+                pwd[256*pwd_index + file->idf_len] = '/';
+                pwd[256*pwd_index + file->idf_len + 1] = '\0';
+                pwd_index++;
+            }
+        }
+        else if (!strcmp(input, "pwd\n"))
+        {
+            for (int i = 0; i < pwd_index; i++)
+            {
+                printf("%s", pwd + 256*i);
+            }
+            printf("\n");
+        }
+        else if (!strncmp(input, "get ", 4))
+        {
+            get_func(map, file, input);
+        }
+        else if (!strcmp(input, "\n"))
+        {
+            if (term)
+                printf(">");
+            continue;
+        }
+        else
+        {
+            if (input[strlen(input) - 1] == '\n')
+                input[strlen(input) - 1] = '\0';
+            printf("my_read_iso: %s: unknown command\n", input);   
+        }
+        if (term)
+            printf(">");
     }
     return 0;
 }
@@ -98,13 +95,13 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-	printf("usage: ./my_read_iso FILE\n");
-	return 1;
+        printf("usage: ./my_read_iso FILE\n");
+        return 1;
     }
 
     char *map = checkiso(argv[1]);
     if (!map)
-	return 1;
+        return 1;
 
     void *tmp = map;
     struct iso_prim_voldesc *pv = tmp;
