@@ -30,20 +30,52 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
     
     last_file.iso_dir = file;
     if (term)
-        printf(">");
+    {	
+	printf(">");
+    }
     while (fgets(param.input, 4095, stdin))
     {
         if (!strcmp(param.input, "quit\n"))
+	{
             break;
-        else if (!strcmp(param.input, "help\n"))
+        }
+	if (!strcmp(param.input, "help\n"))
+	{
             help_func();
-        else if (!strcmp(param.input, "info\n"))
-            info_func(pv);
-        else if (!strcmp(param.input, "ls\n"))
-            ls_func(map, file);
-        else if (!strncmp(param.input, "cat ", 4))
-          cat_func(map, file, param.input);
-        else if (!strncmp(param.input, "cd ", 3))
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
+	}
+	if (!strcmp(param.input, "info\n"))
+	{
+	    info_func(pv);
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
+        }
+	if (!strcmp(param.input, "ls\n"))
+	{
+	    ls_func(map, file);
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
+        }
+	if (!strncmp(param.input, "cat ", 4))
+	{
+	    cat_func(map, file, param.input);
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
+        }
+	if (!strncmp(param.input, "cd ", 3))
         {
             last_file.name = last_tmp.name;
             last_tmp = last_file;
@@ -62,20 +94,44 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
 		    pwd[256 * pwd_index + file->idf_len + 1] = '\0';
 		    pwd_index += 1;
             }
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
         }
-        else if (!strcmp(param.input, "pwd\n"))
+        if (!strcmp(param.input, "pwd\n"))
         {
             for (int i = 0; i < pwd_index; i++)
             {
                 printf("%s", pwd + 256*i);
             }
             printf("\n");
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
         }
-        else if (!strncmp(param.input, "get ", 4))
+        if (!strncmp(param.input, "get ", 4))
         {
             get_func(map, file, param.input);
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
         }
-        else if (!strcmp(param.input, "\n"))
+        if (!strncmp(param.input, "tree", 4))
+	{
+	    tree_func(map, file, param);
+	    if (term)
+	    {
+		printf(">");
+	    }
+	    continue;
+	}
+        if (!strcmp(param.input, "\n"))
         {
             if (term)
                 printf(">");
@@ -84,11 +140,15 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
         else
         {
             if (param.input[strlen(input) - 1] == '\n')
-                param.input[strlen(input) - 1] = '\0';
-            printf("my_read_iso: %s: unknown command\n", param.input);   
-        }
-        if (term)
-            printf(">");
+            {
+		param.input[strlen(input) - 1] = '\0';
+            }
+	    printf("my_read_iso: %s: unknown command\n", param.input);   
+	    if (term)
+	    {
+		printf(">");
+	    }
+	}
     }
     return 0;
 }
@@ -97,14 +157,15 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        printf("usage: ./my_read_iso FILE\n");
-        return 1;
+        errx(1, "usage: ./my_read_iso FILE");
     }
 
     char *map = checkiso(argv[1]);
     if (!map)
+    {
         return 1;
-
+    }
+    
     void *tmp = map;
     struct iso_prim_voldesc *pv = tmp;
     map -= ISO_PRIM_VOLDESC_BLOCK * ISO_BLOCK_SIZE;

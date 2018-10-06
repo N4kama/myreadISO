@@ -39,3 +39,13 @@ void get_name(struct iso_dir *file, char *res)
     name[name_len] = '\0';
     strcpy(res, name);
 }
+
+int is_last_file(struct iso_dir *file, char *cur)
+{
+    cur += file->dir_size;
+    void *tmp = cur;
+    struct iso_dir *next = tmp;
+    if (!next->data_blk.le)
+	return 1;
+    return 0;
+}

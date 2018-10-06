@@ -5,15 +5,15 @@ void  *checkiso(char *pathname)
     int fd = open(pathname, O_RDONLY);
     if (fd < 0)
     {
-	printf("my_read_iso: %s: No such file or directory\n", pathname);
 	close(fd);
+	printf("my_read_iso: %s: No such file or directory\n", pathname);
 	return NULL;
     }
     struct stat st;
     if (fstat(fd, &st) || (st.st_size < (ISO_BLOCK_SIZE * 17)))
     {
-	printf("my_read_iso: %s: invalid ISO9660 file\n", pathname);
 	close(fd);
+	printf("my_read_iso: %s: invalid ISO9660 file\n", pathname);
 	return NULL;
     }
     char *map = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -22,8 +22,8 @@ void  *checkiso(char *pathname)
     struct iso_prim_voldesc *prim_vol = tmp;
     if (strncmp(prim_vol->std_identifier, "CD001", 5))
     {
-	printf("my_read_iso: %s: invalid ISO9660 file\n", pathname);
 	close(fd);
+	printf("my_read_iso: %s: invalid ISO9660 file\n", pathname);
 	return NULL;
     }
     close(fd);
@@ -61,8 +61,10 @@ void ls_func(char *map, struct iso_dir *root)
         void *tmp = cur;
         struct iso_dir *file = tmp;
         if (!file->data_blk.le)
-            return;
-        char *name = cur + sizeof(struct iso_dir);
+	{
+	    return;
+        }
+	char *name = cur + sizeof(struct iso_dir);
         char dir = file->type & 2 ? 'd' : '-';
         char hidden = file->type & 1 ? 'h' : '-';
         int name_len = file->idf_len;
@@ -100,8 +102,10 @@ void cat_func(char *map, struct iso_dir *root, char *command)
             void *tmp = cur;
             struct iso_dir *file = tmp;
             if (!file->data_blk.le)
-                break;
-            char *filename = cur + sizeof(struct iso_dir);
+	    {
+		break;
+            }
+	    char *filename = cur + sizeof(struct iso_dir);
             char dir = file->type & 2 ? 'd' : '-';
             if (dir == '-')
             {

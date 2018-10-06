@@ -12,8 +12,7 @@ void *goto_file(char *map, struct iso_dir *root, int index)
         {
             return NULL;
         }
-        char dir = file->type & 2 ? 'd' : '-';
-        if (dir == 'd' && !index)
+        if (!index)
         {
 	    return file;
         }
@@ -66,8 +65,7 @@ void *cd_func(char *map, struct iso_dir *root, struct input_params param,
 	if (!strcmp(filename, ".."))
 	{
 	    struct iso_dir *back = goto_file(map, root, 2);
-	    int index = *param.index;
-	    if (index <= 2)
+	    if (*param.index <= 2)
 	    {
 		strcpy(filename_save, "/");
 	    }
@@ -85,16 +83,24 @@ void *cd_func(char *map, struct iso_dir *root, struct input_params param,
             root = prev_file->iso_dir;
             break;
         }
-        prev_file->name = input_save;
-        if (!(root = cd_func_alt(map, root, filename)))
+	if (prev_file)
+	{
+	    prev_file->name = input_save;
+	}
+	if (!(root = cd_func_alt(map, root, filename)))
         {
             printf("my_read_iso: unable to find '%s' directory entry\n"
                    , input_save);
             return root_save;
         }  
     }
-    if (root == prev_file->iso_dir)
+    if (prev_file && root == prev_file->iso_dir)
+    {
         strcpy(filename_save, prev_file->name);
-    printf("Changing to '%s' directory\n", filename_save);
+    }
+    if (prev_file)
+    {
+	printf("Changing to '%s' directory\n", filename_save);
+    }
     return root;
 }
