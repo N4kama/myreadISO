@@ -33,7 +33,7 @@ void cat_func(char *map, struct iso_dir *root, char *command);
 
 void *goto_file(char *map, struct iso_dir *root, int index);
 void *cd_func(char *map, struct iso_dir *root, struct input_params param,
-	      struct file *prev_file);
+              struct file *prev_file);
 
 void get_func(char *map, struct iso_dir *root, char *input);
 

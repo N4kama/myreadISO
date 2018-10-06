@@ -15,10 +15,10 @@ void get_func(char *map, struct iso_dir *root, char *input)
         void *tmp = cur;
         struct iso_dir *file = tmp;
         if (!file->data_blk.le)
-	{
-	    break;
+        {
+            break;
         }
-	char *filename = cur + sizeof(struct iso_dir);
+        char *filename = cur + sizeof(struct iso_dir);
         char dir = file->type & 2 ? 'd' : '-';
         if (dir == '-')
         {
@@ -26,10 +26,10 @@ void get_func(char *map, struct iso_dir *root, char *input)
             {
                 FILE *f;
                 if (!(f= fopen(name, "w")))
-		{
-		    return;
+                {
+                    return;
                 }
-		char *content = move_to_block(map, file->data_blk.le);
+                char *content = move_to_block(map, file->data_blk.le);
                 fwrite(content, file->file_size.le, sizeof(char), f);
                 fclose(f);
                 return;

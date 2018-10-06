@@ -1,0 +1,22 @@
+THIS IS MY README
+
+The program checks the sanity of the iso.
+
+The mini-shell supports tty.
+
+Help, info and quit are working.
+
+"ls" is working in whatever the current directory is. It doesn't work with
+directories as argument.
+
+"cat" is working (but not with absolute/relative path).
+
+"cd" is working but only if the argument contains one directory
+(not with multiples, ex : test/foo/bar). "cd -" doesn't work and "cd .."
+prints a wrong answer (but works).
+
+"pwd" does work until you try the command "cd .." or "cd -".
+
+"get" is working (but not with absolute/relative path).
+
+"tree" almost works but has some problem with whitespaces.

@@ -12,7 +12,7 @@ void *goto_file(char *map, struct iso_dir *root, int index)
     char *cur  = move_to_block(map, root->data_blk.le);
     while (cur)
     {
-	index--;
+        index--;
         void *tmp = cur;
         struct iso_dir *file = tmp;
         if (!file->data_blk.le)
@@ -21,7 +21,7 @@ void *goto_file(char *map, struct iso_dir *root, int index)
         }
         if (!index)
         {
-	    return file;
+            return file;
         }
         cur += file->dir_size;
     }
@@ -56,33 +56,33 @@ void *cd_func_alt(char *map, struct iso_dir *root, char *filename)
 }
 
 int cd_ext(char *map, struct iso_dir *root, struct input_params *param,
-	   struct cd_params *cd_p)
+           struct cd_params *cd_p)
 {
     if (!strcmp(*cd_p->filename, ".."))
     {
-	struct iso_dir *back = goto_file(map, root, 2);
-	if (*param->index <= 2)
-	{
-	    strcpy(cd_p->filename_save, "/");
-	}
-	else
-	{
-	    strcpy(cd_p->filename_save,
-		   &param->path[(*param->index - 2) * 256]);
-	    cd_p->filename_save[strlen(cd_p->filename_save) - 1] = '\0';
-	}
-	root = back;
-	*param->index -= 1;
-	return 1;
+        struct iso_dir *back = goto_file(map, root, 2);
+        if (*param->index <= 2)
+        {
+            strcpy(cd_p->filename_save, "/");
+        }
+        else
+        {
+            strcpy(cd_p->filename_save,
+                   &param->path[(*param->index - 2) * 256]);
+            cd_p->filename_save[strlen(cd_p->filename_save) - 1] = '\0';
+        }
+        root = back;
+        *param->index -= 1;
+        return 1;
     }
     if (!strcmp(*cd_p->filename, "-"))
     {
-	root = cd_p->prev_file->iso_dir;
-	return 1;
+        root = cd_p->prev_file->iso_dir;
+        return 1;
     }
     if (cd_p->prev_file)
     {
-	cd_p->prev_file->name = cd_p->input_save;
+        cd_p->prev_file->name = cd_p->input_save;
     }
     return 0;
 }
@@ -98,20 +98,20 @@ void *cd_func(char *map, struct iso_dir *root, struct input_params param,
     char *filename = NULL;
     char filename_save[256];
     struct cd_params cd_p = {
-	&filename, filename_save, input_save, prev_file
+        &filename, filename_save, input_save, prev_file
     };
     while ((filename = strtok(tmp_filename, "/")))
     {
         tmp_filename = NULL;
         strcpy(filename_save, filename);
-	if (cd_ext(map, root, &param, &cd_p))
-	    break;
-	if (!(root = cd_func_alt(map, root, filename)))
+        if (cd_ext(map, root, &param, &cd_p))
+            break;
+        if (!(root = cd_func_alt(map, root, filename)))
         {
             printf("my_read_iso: unable to find '%s' directory entry\n"
                    , input_save);
             return root_save;
-        }  
+        }
     }
     if (prev_file && root == prev_file->iso_dir)
     {
@@ -119,7 +119,7 @@ void *cd_func(char *map, struct iso_dir *root, struct input_params param,
     }
     if (prev_file)
     {
-	printf("Changing to '%s' directory\n", filename_save);
+        printf("Changing to '%s' directory\n", filename_save);
     }
     return root;
 }
