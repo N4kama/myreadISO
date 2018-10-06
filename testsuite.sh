@@ -5,6 +5,22 @@ if [ "$#" -ne 3 ]; then
     exit
 fi
 
+mkdir mkdir -p example example/MP3 example/PICS example/PICS example/PICS/SECRET
+touch example/MP3/TEST1.MP3 example/MP3/TEST2.MP3 example/PICS/ORDURE.JPG
+touch example/PICS/SECRET/ORDURE.MP3
+
+echo > example/README.TXT
+echo "===============================================" >> example/README.TXT
+echo "Ce fichier ne contient aucune information utile" >> example/README.TXT
+echo "===============================================" >> example/README.TXT
+echo >> example/README.TXT
+echo "Les ACUs" >> example/README.TXT
+echo >> example/README.TXT
+
+mkisofs -o example.iso example/
+
+rm -rf example/
+
 list=$(echo 'help' 'info' 'ls')
 
 for elm in $list; do
