@@ -27,7 +27,7 @@ void tree_rec(char *map, struct iso_dir *root, int prof, struct record *rec)
         }
 	else
 	    rec->dir += 1;
-	if (prof && !is_last_file(file, cur))
+	if (prof || !is_last_file(file, cur))
 	    printf("|");
 	for (int i = 0; i < prof; i++)
 	{
@@ -35,11 +35,19 @@ void tree_rec(char *map, struct iso_dir *root, int prof, struct record *rec)
 	}
 	if (is_last_file(file, cur))
 	{
+	    for (int i = 0; i < prof; i++)
+	    {
+		printf(" ");
+	    }
 	    printf("+-- %.*s/", name_len, name);
 	}
 	else
 	{
-	    printf("|-- %.*s", name_len, name);
+	    if (prof && !is_last_file(file, cur))
+	    {
+		printf("|");
+	    }
+	    printf("-- %.*s", name_len, name);
 	}
 	printf("\n");
 	if (dir == 'd')

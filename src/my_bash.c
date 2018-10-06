@@ -20,9 +20,9 @@ void help_func(void)
     printf("quit: program exit\n");
 }
 
-void getinput5(int term, struct input_params param)
+void getinput5(int term, struct input_params *param)
 {
-    if (!strcmp(param.input, "\n"))
+    if (!strcmp(param->input, "\n"))
     {
 	if (term)
 	    printf(">");
@@ -30,11 +30,11 @@ void getinput5(int term, struct input_params param)
     }
     else
     {
-	if (param.input[strlen(param.input) - 1] == '\n')
+	if (param->input[strlen(param->input) - 1] == '\n')
 	{
-	    param.input[strlen(param.input) - 1] = '\0';
+	    param->input[strlen(param->input) - 1] = '\0';
 	}
-	printf("my_read_iso: %s: unknown command\n", param.input);   
+	printf("my_read_iso: %s: unknown command\n", param->input);   
 	if (term)
 	{
 	    printf(">");
@@ -42,14 +42,14 @@ void getinput5(int term, struct input_params param)
     }
 }
 
-void getinput4(char *map, struct iso_dir_param dir_p, int term,
-	       struct input_params param)
+void getinput4(char *map, struct iso_dir_param *dir_p, int term,
+	       struct input_params *param)
 {
-    if (!strcmp(param.input, "pwd\n"))
+    if (!strcmp(param->input, "pwd\n"))
     {
-	for (int i = 0; i < *param.index; i++)
+	for (int i = 0; i < *param->index; i++)
 	{
-	    printf("%s", param.path + 256*i);
+	    printf("%s", param->path + 256*i);
 	}
 	printf("\n");
 	if (term)
@@ -58,18 +58,18 @@ void getinput4(char *map, struct iso_dir_param dir_p, int term,
 	}
 	return;
     }
-    if (!strncmp(param.input, "get ", 4))
+    if (!strncmp(param->input, "get ", 4))
     {
-	get_func(map, dir_p.file, param.input);
+	get_func(map, dir_p->file, param->input);
 	if (term)
 	{
 	    printf(">");
 	}
 	return;
     }
-    if (!strncmp(param.input, "tree", 4))
+    if (!strncmp(param->input, "tree", 4))
     {
-	tree_func(map, dir_p.file, param);
+	tree_func(map, dir_p->file, *param);
 	if (term)
 	{
 	    printf(">");
@@ -79,28 +79,28 @@ void getinput4(char *map, struct iso_dir_param dir_p, int term,
     getinput5 (term, param);
 }
 
-void getinput3(char *map, struct iso_dir_param dir_p, int term,
-	       struct input_params param)
+void getinput3(char *map, struct iso_dir_param *dir_p, int term,
+	       struct input_params *param)
 {
-    if (!strncmp(param.input, "cd ", 3))
+    if (!strncmp(param->input, "cd ", 3))
     {
-	dir_p.last_file->name = dir_p.last_tmp->name;
-	dir_p.last_tmp = dir_p.last_file;
-	dir_p.last_file->iso_dir = dir_p.file;
-	dir_p.file = cd_func(map, dir_p.file, param, dir_p.last_tmp);
-	if (dir_p.file != dir_p.last_file->iso_dir)
+	dir_p->last_file->name = dir_p->last_tmp->name;
+	dir_p->last_tmp = dir_p->last_file;
+	dir_p->last_file->iso_dir = dir_p->file;
+	dir_p->file = cd_func(map, dir_p->file, *param, dir_p->last_tmp);
+	if (dir_p->file != dir_p->last_file->iso_dir)
 	{
-	    void *tmp = dir_p.file;
+	    void *tmp = dir_p->file;
 	    char *tmpp = tmp;
 	    char *filename = tmpp + sizeof(struct iso_dir);
-	    for (int i = 0; i < dir_p.file->idf_len; i++)
+	    for (int i = 0; i < dir_p->file->idf_len; i++)
 	    {
-		param.path[256 * *param.index + i] = filename[i];
+		param->path[256 * *param->index + i] = filename[i];
 	    }
-	    param.path[256 * *param.index + dir_p.file->idf_len] = '/';
-	    param.path[256 * *param.index +
-		       dir_p.file->idf_len + 1] = '\0';
-	    *param.index += 1;
+	    param->path[256 * *param->index + dir_p->file->idf_len] = '/';
+	    param->path[256 * *param->index +
+		       dir_p->file->idf_len + 1] = '\0';
+	    *param->index += 1;
 	}
 	if (term)
 	{
@@ -111,16 +111,16 @@ void getinput3(char *map, struct iso_dir_param dir_p, int term,
     getinput4(map, dir_p, term, param);
 }
 
-void getinput2(char *map, struct iso_dir_param dir_p, int term,
-	      struct input_params param)
+void getinput2(char *map, struct iso_dir_param *dir_p, int term,
+	      struct input_params *param)
 {
-    while (fgets(param.input, 4095, stdin))
+    while (fgets(param->input, 4095, stdin))
     {
-        if (!strcmp(param.input, "quit\n"))
+        if (!strcmp(param->input, "quit\n"))
 	{
             break;
         }
-	if (!strcmp(param.input, "help\n"))
+	if (!strcmp(param->input, "help\n"))
 	{
             help_func();
 	    if (term)
@@ -129,27 +129,27 @@ void getinput2(char *map, struct iso_dir_param dir_p, int term,
 	    }
 	    continue;
 	}
-	if (!strcmp(param.input, "info\n"))
+	if (!strcmp(param->input, "info\n"))
 	{
-	    info_func(dir_p.pv);
+	    info_func(dir_p->pv);
 	    if (term)
 	    {
 		printf(">");
 	    }
 	    continue;
         }
-	if (!strcmp(param.input, "ls\n"))
+	if (!strcmp(param->input, "ls\n"))
 	{
-	    ls_func(map, dir_p.file);
+	    ls_func(map, dir_p->file);
 	    if (term)
 	    {
 		printf(">");
 	    }
 	    continue;
         }
-	if (!strncmp(param.input, "cat ", 4))
+	if (!strncmp(param->input, "cat ", 4))
 	{
-	    cat_func(map, dir_p.file, param.input);
+	    cat_func(map, dir_p->file, param->input);
 	    if (term)
 	    {
 		printf(">");
@@ -184,7 +184,7 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
     struct  iso_dir_param dir_p = {
 	pv, &last_file, &last_tmp, file
     };
-    getinput2(map, dir_p, term, param);
+    getinput2(map, &dir_p, term, &param);
     return 0;
 }
 
