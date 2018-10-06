@@ -2,8 +2,8 @@
 
 struct iso_dir_param {
     struct iso_prim_voldesc *pv;
-    struct file last_file;
-    struct file last_tmp;
+    struct file *last_file;
+    struct file *last_tmp;
     struct iso_dir *file;
 };
 
@@ -84,11 +84,11 @@ void getinput3(char *map, struct iso_dir_param dir_p, int term,
 {
     if (!strncmp(param.input, "cd ", 3))
     {
-	dir_p.last_file.name = dir_p.last_tmp.name;
+	dir_p.last_file->name = dir_p.last_tmp->name;
 	dir_p.last_tmp = dir_p.last_file;
-	dir_p.last_file.iso_dir = dir_p.file;
-	dir_p.file = cd_func(map, dir_p.file, param, &dir_p.last_tmp);
-	if (dir_p.file != dir_p.last_file.iso_dir)
+	dir_p.last_file->iso_dir = dir_p.file;
+	dir_p.file = cd_func(map, dir_p.file, param, dir_p.last_tmp);
+	if (dir_p.file != dir_p.last_file->iso_dir)
 	{
 	    void *tmp = dir_p.file;
 	    char *tmpp = tmp;
@@ -182,7 +182,7 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
 	printf(">");
     }
     struct  iso_dir_param dir_p = {
-	pv, last_file, last_tmp, file
+	pv, &last_file, &last_tmp, file
     };
     getinput2(map, dir_p, term, param);
     return 0;

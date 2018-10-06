@@ -1,5 +1,12 @@
 #include "functions.h"
 
+struct cd_params {
+    char **filename;
+    char *filename_save;
+    char *input_save;
+    struct file *prev_file;
+};
+
 void *goto_file(char *map, struct iso_dir *root, int index)
 {
     char *cur  = move_to_block(map, root->data_blk.le);
@@ -48,6 +55,38 @@ void *cd_func_alt(char *map, struct iso_dir *root, char *filename)
     return root;
 }
 
+int cd_ext(char *map, struct iso_dir *root, struct input_params *param,
+	   struct cd_params *cd_p)
+{
+    if (!strcmp(*cd_p->filename, ".."))
+    {
+	struct iso_dir *back = goto_file(map, root, 2);
+	if (*param->index <= 2)
+	{
+	    strcpy(cd_p->filename_save, "/");
+	}
+	else
+	{
+	    strcpy(cd_p->filename_save,
+		   &param->path[(*param->index - 2) * 256]);
+	    cd_p->filename_save[strlen(cd_p->filename_save) - 1] = '\0';
+	}
+	root = back;
+	*param->index -= 1;
+	return 1;
+    }
+    if (!strcmp(*cd_p->filename, "-"))
+    {
+	root = cd_p->prev_file->iso_dir;
+	return 1;
+    }
+    if (cd_p->prev_file)
+    {
+	cd_p->prev_file->name = cd_p->input_save;
+    }
+    return 0;
+}
+
 void *cd_func(char *map, struct iso_dir *root, struct input_params param,
     struct file *prev_file)
 {
@@ -58,35 +97,15 @@ void *cd_func(char *map, struct iso_dir *root, struct input_params param,
     strcpy(input_save, tmp_filename);
     char *filename = NULL;
     char filename_save[256];
+    struct cd_params cd_p = {
+	&filename, filename_save, input_save, prev_file
+    };
     while ((filename = strtok(tmp_filename, "/")))
     {
         tmp_filename = NULL;
         strcpy(filename_save, filename);
-	if (!strcmp(filename, ".."))
-	{
-	    struct iso_dir *back = goto_file(map, root, 2);
-	    if (*param.index <= 2)
-	    {
-		strcpy(filename_save, "/");
-	    }
-	    else
-	    {
-		strcpy(filename_save, &param.path[(*param.index - 2) * 256]);
-		filename_save[strlen(filename_save) - 1] = '\0';
-	    }
-	    root = back;
-	    *param.index -= 1;
+	if (cd_ext(map, root, &param, &cd_p))
 	    break;
-	}
-        if (!strcmp(filename, "-"))
-        {
-            root = prev_file->iso_dir;
-            break;
-        }
-	if (prev_file)
-	{
-	    prev_file->name = input_save;
-	}
 	if (!(root = cd_func_alt(map, root, filename)))
         {
             printf("my_read_iso: unable to find '%s' directory entry\n"
