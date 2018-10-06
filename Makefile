@@ -9,7 +9,7 @@ all :
 	$(CC) $(CFLAGS) $(SRC) -o $(RES)
 
 test :
-	./testsuite.sh ./my_read_iso ./read_iso example.iso
+	./tests/testsuite.sh ./my_read_iso ./read_iso example.iso
 
 clean :
 	rm $(RES) example.iso README.TXT
