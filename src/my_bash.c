@@ -84,23 +84,30 @@ void getinput3(char *map, struct iso_dir_param *dir_p, int term,
 {
     if (!strncmp(param->input, "cd ", 3))
     {
-	dir_p->last_file->name = dir_p->last_tmp->name;
-	dir_p->last_tmp = dir_p->last_file;
-	dir_p->last_file->iso_dir = dir_p->file;
-	dir_p->file = cd_func(map, dir_p->file, *param, dir_p->last_tmp);
-	if (dir_p->file != dir_p->last_file->iso_dir)
+	if (!strncmp(param->input, "cd ..", 5))
 	{
-	    void *tmp = dir_p->file;
-	    char *tmpp = tmp;
-	    char *filename = tmpp + sizeof(struct iso_dir);
-	    for (int i = 0; i < dir_p->file->idf_len; i++)
+	    dir_p->file = dir_p->last_file->iso_dir;
+	}
+	else
+	{
+	    dir_p->last_file->name = dir_p->last_tmp->name;
+	    dir_p->last_tmp = dir_p->last_file;
+	    dir_p->last_file->iso_dir = dir_p->file;
+	    dir_p->file = cd_func(map, dir_p->file, *param, dir_p->last_tmp);
+	    if (dir_p->file != dir_p->last_file->iso_dir)
 	    {
-		param->path[256 * *param->index + i] = filename[i];
+		void *tmp = dir_p->file;
+		char *tmpp = tmp;
+		char *filename = tmpp + sizeof(struct iso_dir);
+		for (int i = 0; i < dir_p->file->idf_len; i++)
+		{
+		    param->path[256 * *param->index + i] = filename[i];
+		}
+		param->path[256 * *param->index + dir_p->file->idf_len] = '/';
+		param->path[256 * *param->index +
+			    dir_p->file->idf_len + 1] = '\0';
+		*param->index += 1;
 	    }
-	    param->path[256 * *param->index + dir_p->file->idf_len] = '/';
-	    param->path[256 * *param->index +
-		       dir_p->file->idf_len + 1] = '\0';
-	    *param->index += 1;
 	}
 	if (term)
 	{
