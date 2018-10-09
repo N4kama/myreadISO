@@ -10,12 +10,14 @@
 #include <sys/stat.h>
 #include <err.h>
 
-struct file {
+struct file
+{
     struct iso_dir *iso_dir;
     char *name;
 };
 
-struct input_params {
+struct input_params
+{
     char *input;
     char *path;
     int *index;

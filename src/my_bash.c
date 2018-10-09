@@ -1,6 +1,7 @@
 #include "functions.h"
 
-struct iso_dir_param {
+struct iso_dir_param
+{
     struct iso_prim_voldesc *pv;
     struct file *last_file;
     struct file *last_tmp;

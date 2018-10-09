@@ -1,6 +1,7 @@
 #include "functions.h"
 
-struct cd_params {
+struct cd_params
+{
     char **filename;
     char *filename_save;
     char *input_save;

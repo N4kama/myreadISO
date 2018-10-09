@@ -34,21 +34,21 @@ void info_func(struct iso_prim_voldesc *pv)
 {
     printf("System Identifier: ");
     fflush(stdout);
-    write(STDOUT_FILENO, pv->syidf, ISO_SYSIDF_LEN * sizeof(char));
+    fwrite(pv->syidf, sizeof(char), ISO_SYSIDF_LEN, stdout);
     printf("\n");
     printf("Volume Identifier: ");
     fflush(stdout);
-    write(STDOUT_FILENO, pv->vol_idf, ISO_VOLIDF_LEN * sizeof(char));
+    fwrite(pv->vol_idf, sizeof(char), ISO_VOLIDF_LEN, stdout);
     printf("\n");
     printf("Block count: %u\n", pv->vol_blk_count.le);
     printf("Block size: %u\n", pv->vol_blk_size.le);
     printf("Creation date: ");
     fflush(stdout);
-    write(STDOUT_FILENO, pv->date_creat, ISO_LDATE_LEN * sizeof(char));
+    fwrite(pv->date_creat, sizeof(char), ISO_LDATE_LEN, stdout);
     printf("\n");
     printf("Application Identifier: ");
     fflush(stdout);
-    write(STDOUT_FILENO, pv->app_idf, ISO_APP_LEN * sizeof(char));
+    fwrite(pv->app_idf, sizeof(char), ISO_APP_LEN, stdout);
     printf("\n");
 }
 
