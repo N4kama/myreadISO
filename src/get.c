@@ -9,7 +9,7 @@ void get_func(char *map, struct iso_dir *root, char *input)
         printf("my_read_iso: unable to find '%s' directory entry\n", name);
         return;
     }
-    char *cur  = move_to_block(map, root->data_blk.le);
+    char *cur = move_to_block(map, root->data_blk.le);
     while (cur)
     {
         void *tmp = cur;
@@ -25,7 +25,7 @@ void get_func(char *map, struct iso_dir *root, char *input)
             if (!strncmp(name, filename, strlen(name)))
             {
                 FILE *f;
-                if (!(f= fopen(name, "w")))
+                if (!(f = fopen(name, "w")))
                 {
                     return;
                 }

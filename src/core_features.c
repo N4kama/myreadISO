@@ -1,6 +1,6 @@
 #include "functions.h"
 
-void  *checkiso(char *pathname)
+void *checkiso(char *pathname)
 {
     int fd = open(pathname, O_RDONLY);
     if (fd < 0)
@@ -55,7 +55,7 @@ void info_func(struct iso_prim_voldesc *pv)
 void ls_func(char *map, struct iso_dir *root)
 {
     int count = 0;
-    char *cur  = move_to_block(map, root->data_blk.le);
+    char *cur = move_to_block(map, root->data_blk.le);
     while (cur)
     {
         void *tmp = cur;
@@ -71,7 +71,10 @@ void ls_func(char *map, struct iso_dir *root)
         if (dir == '-')
         {
             int len = 0;
-            for (; name[len] != ';'; len++);
+            for (; name[len] != ';'; len++)
+            {
+                continue;
+            }
             name_len = len;
         }
         if (count < 2)
@@ -96,7 +99,7 @@ void cat_func(char *map, struct iso_dir *root, char *command)
     char *name = strtok(command, " ");
     while ((name = strtok(NULL, " ")))
     {
-        char *cur  = move_to_block(map, root->data_blk.le);
+        char *cur = move_to_block(map, root->data_blk.le);
         while (cur)
         {
             void *tmp = cur;

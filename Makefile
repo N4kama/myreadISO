@@ -8,8 +8,8 @@ src/cd.c src/tree.c
 all :
 	$(CC) $(CFLAGS) $(SRC) -o $(RES)
 
-test :
-	./tests/testsuite.sh ./my_read_iso ./read_iso example.iso
+test : all
+	./tests/testsuite.sh ./my_read_iso ./../my_read_iso example.iso
 
 clean :
-	rm $(RES) example.iso README.TXT
+	$(RM) $(RES)

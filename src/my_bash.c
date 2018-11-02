@@ -50,7 +50,7 @@ void getinput4(char *map, struct iso_dir_param *dir_p, int term,
     {
         for (int i = 0; i < *param->index; i++)
         {
-            printf("%s", param->path + 256*i);
+            printf("%s", param->path + 256 * i);
         }
         printf("\n");
         if (term)
@@ -77,7 +77,7 @@ void getinput4(char *map, struct iso_dir_param *dir_p, int term,
         }
         return;
     }
-    getinput5 (term, param);
+    getinput5(term, param);
 }
 
 void getinput3(char *map, struct iso_dir_param *dir_p, int term,
@@ -120,7 +120,7 @@ void getinput3(char *map, struct iso_dir_param *dir_p, int term,
 }
 
 void getinput2(char *map, struct iso_dir_param *dir_p, int term,
-              struct input_params *param)
+               struct input_params *param)
 {
     while (fgets(param->input, 4095, stdin))
     {
@@ -176,19 +176,20 @@ int getinput(char *map, struct iso_prim_voldesc *pv)
     struct file last_file;
     struct file last_tmp;
 
-    char pwd[256*9];
+    char pwd[256 * 9];
     pwd[0] = '/';
     pwd[1] = '\0';
     int pwd_index = 1;
 
-    struct input_params param = { input, pwd , &pwd_index};
+    struct input_params param = {input, pwd, &pwd_index};
     last_file.iso_dir = file;
     last_tmp.iso_dir = file;
     if (term)
     {
         printf(">");
     }
-    struct  iso_dir_param dir_p = {
+    struct iso_dir_param dir_p =
+    {
         pv, &last_file, &last_tmp, file
     };
     getinput2(map, &dir_p, term, &param);

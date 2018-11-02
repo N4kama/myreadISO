@@ -32,7 +32,9 @@ void tree_rec_alt(struct iso_dir *file, char *cur, struct treestruct tree,
         rec->dir += 1;
     }
     if (tree.prof || !is_last_file(file, cur))
+    {
         printf("|");
+    }
     for (int i = 0; i < tree.prof; i++)
     {
         printf("   ");
@@ -58,7 +60,7 @@ void tree_rec_alt(struct iso_dir *file, char *cur, struct treestruct tree,
 void tree_rec(char *map, struct iso_dir *root, int prof, struct record *rec)
 {
     int count = 0;
-    char *cur  = goto_file(map, root, 3);
+    char *cur = goto_file(map, root, 3);
     struct treestruct treestruct;
     treestruct.prof = prof;
     while (cur)
@@ -105,8 +107,7 @@ void tree_func(char *map, struct iso_dir *root, struct input_params param)
     }
     struct record rec =
         {
-            0, 0
-        };
+            0, 0};
     tree_rec(map, root, 0, &rec);
     printf("\n%d directories, %d files\n", rec.dir, rec.files);
 }

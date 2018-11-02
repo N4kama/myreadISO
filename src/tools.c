@@ -35,7 +35,10 @@ void get_name(struct iso_dir *file, char *res)
     if (dir == '-')
     {
         int len = 0;
-        for (; name[len] != ';'; len++);
+        for (; name[len] != ';'; len++)
+        {
+            continue;
+        }
         name_len = len;
     }
     name[name_len] = '\0';
